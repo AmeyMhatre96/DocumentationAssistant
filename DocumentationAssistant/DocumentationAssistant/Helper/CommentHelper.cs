@@ -57,13 +57,13 @@ namespace DocumentationAssistant.Helper
 		public static string CreateInterfaceComment(string name)
 		{
 			List<string> parts = SpilitNameAndToLower(name, false);
-			if (parts[0]=="I")
+			if (parts[0] == "I")
 			{
 				parts.RemoveAt(0);
 			}
 
-			parts.Insert(0,"The");
-			return string.Join(" ",parts)+".";
+			parts.Insert(0, "The");
+			return string.Join(" ", parts) + ".";
 		}
 
 		/// <summary>
@@ -80,8 +80,8 @@ namespace DocumentationAssistant.Helper
 		/// Creates property comment.
 		/// </summary>
 		/// <param name="name">The name.</param>
-		/// <param name="isBoolean">If ture, the property type is boolean.</param>
-		/// <param name="hasSetter">If ture, the property has setter.</param>
+		/// <param name="isBoolean">If true, the property type is boolean.</param>
+		/// <param name="hasSetter">If true, the property has setter.</param>
 		/// <returns>The property comment.</returns>
 		public static string CreatePropertyComment(string name, bool isBoolean, bool hasSetter)
 		{
@@ -111,7 +111,8 @@ namespace DocumentationAssistant.Helper
 		{
 			List<string> parts = SpilitNameAndToLower(name, false);
 			parts[0] = Pluralizer.Pluralize(parts[0]);
-			parts.Insert(1, "the");
+			if (parts.Count > 1)
+				parts.Insert(1, "the");
 			return string.Join(" ", parts) + ".";
 		}
 

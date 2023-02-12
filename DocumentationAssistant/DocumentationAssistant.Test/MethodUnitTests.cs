@@ -71,6 +71,45 @@ namespace ConsoleApp4
 }";
 
 		/// <summary>
+		/// The override test code.
+		/// </summary>
+		private const string OverrideTestCode = @"
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace ConsoleApp4
+{
+	public class MethodTester
+	{
+		public override void ShowOverrideMethodTester()
+		{
+		}
+	}
+}";
+
+		/// <summary>
+		/// The override test fix code.
+		/// </summary>
+		private const string OverrideTestFixCode = @"
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace ConsoleApp4
+{
+	public class MethodTester
+	{
+        /// <inheritdoc/>
+        public override void ShowOverrideMethodTester()
+		{
+		}
+	}
+}";
+
+
+
+		/// <summary>
 		/// The method with parameter test code.
 		/// </summary>
 		private const string MethodWithParameterTestCode = @"
@@ -182,7 +221,7 @@ namespace ConsoleApp4
 	public class MethodTester
 	{
         /// <summary>
-        /// Shows the.
+        /// Shows.
         /// </summary>
         /// <param name=""param1"">The param1.</param>
         /// <param name=""param2"">The param2.</param>
@@ -508,6 +547,7 @@ namespace ConsoleApp4
 		/// <param name="column">The column.</param>
 		[DataTestMethod]
 		[DataRow(BasicTestCode, BasicTestFixCode, 10, 15)]
+		[DataRow(OverrideTestCode, OverrideTestFixCode, 10, 24)]
 		[DataRow(MethodWithParameterTestCode, MethodWithParameterTestFixCode, 10, 15)]
 		[DataRow(MethodWithBooleanParameterTestCode, MethodWithBooleanParameterTestFixCode, 10, 15)]
 		[DataRow(MethodWithNullableStructParameterTestCode, MethodWithNullableStructParameterTestFixCode, 10, 15)]
