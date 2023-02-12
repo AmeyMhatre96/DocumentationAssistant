@@ -37,6 +37,35 @@ namespace DocumentationAssistant.Helper
 		}
 
 		/// <summary>
+		/// Creates the inherit doc node.
+		/// </summary>
+		/// <returns>An array of XmlNodeSyntaxes.</returns>
+		public static XmlNodeSyntax[] CreateInheritDocNode()
+		{
+			///[0] <inheritdoc />[1][2]
+
+			// [0] -- line start text 
+			XmlTextSyntax lineStartText = CreateLineStartTextSyntax();
+
+			// [1] -- inheritdoc text
+			XmlEmptyElementSyntax inheritDocText = CreateInheritDocElementSyntax();
+
+			// [2] -- line end text 
+			XmlTextSyntax lineEndText = CreateLineEndTextSyntax();
+
+			return new XmlNodeSyntax[] { lineStartText, inheritDocText, lineEndText };
+		}
+
+		/// <summary>
+		/// Creates the inherit doc element syntax.
+		/// </summary>
+		/// <returns>A XmlElementSyntax.</returns>
+		private static XmlEmptyElementSyntax CreateInheritDocElementSyntax()
+		{
+			return SyntaxFactory.XmlEmptyElement(SyntaxFactory.XmlName(InheritDoc));
+		}
+
+		/// <summary>
 		/// Creates summary part nodes.
 		/// </summary>
 		/// <param name="content">The content.</param>

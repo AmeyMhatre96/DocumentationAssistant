@@ -86,9 +86,20 @@ namespace DocumentationAssistant
 		/// <returns>A DocumentationCommentTriviaSyntax.</returns>
 		private static DocumentationCommentTriviaSyntax CreateDocumentationCommentTriviaSyntax(MethodDeclarationSyntax declarationSyntax)
 		{
+
 			SyntaxList<SyntaxNode> list = SyntaxFactory.List<SyntaxNode>();
 
+			// check if the method is an override
+			bool isOverride = declarationSyntax.Modifiers.Any(SyntaxKind.OverrideKeyword);
+			if (isOverride)
+			{
+				list = list.AddRange(DocumentationHeaderHelper.CreateInheritDocNode());
+				return SyntaxFactory.DocumentationCommentTrivia(SyntaxKind.SingleLineDocumentationCommentTrivia, list);
+			}
+
+			// Otherwise, create a whole method summary
 			string methodComment = CommentHelper.CreateMethodComment(declarationSyntax.Identifier.ValueText);
+
 			list = list.AddRange(DocumentationHeaderHelper.CreateSummaryPartNodes(methodComment));
 
 			if (declarationSyntax.ParameterList.Parameters.Any())
