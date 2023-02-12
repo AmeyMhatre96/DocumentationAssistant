@@ -1,4 +1,5 @@
-﻿using System.Collections.Immutable;
+﻿using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Composition;
 using System.Linq;
 using System.Threading;
@@ -70,6 +71,19 @@ namespace DocumentationAssistant
 		private async Task<Document> AddDocumentationHeaderAsync(Document document, SyntaxNode root, PropertyDeclarationSyntax declarationSyntax, CancellationToken cancellationToken)
 		{
 			SyntaxTriviaList leadingTrivia = declarationSyntax.GetLeadingTrivia();
+			// TODO : If it is a property implementation of an interface, use an inheritdoc
+
+			// check if the method is an override (TODO : Refactor)
+			bool isOverride = declarationSyntax.Modifiers.Any(SyntaxKind.OverrideKeyword);
+			if (isOverride)
+			{
+				SyntaxList<SyntaxNode> list = SyntaxFactory.List<SyntaxNode>();
+				list = list.AddRange(DocumentationHeaderHelper.CreateInheritDocNode());
+				var newCommentTrivia = SyntaxFactory.DocumentationCommentTrivia(SyntaxKind.SingleLineDocumentationCommentTrivia, list);
+				SyntaxTriviaList newTrivia = leadingTrivia.Insert(leadingTrivia.Count - 1, SyntaxFactory.Trivia(newCommentTrivia));
+				PropertyDeclarationSyntax newDeclarationSyntax = declarationSyntax.WithLeadingTrivia(newTrivia);
+				return document.WithSyntaxRoot(root.ReplaceNode(declarationSyntax, newDeclarationSyntax));
+			}
 
 			bool isBoolean = false;
 			if (declarationSyntax.Type.IsKind(SyntaxKind.PredefinedType))

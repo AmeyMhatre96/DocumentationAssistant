@@ -65,6 +65,39 @@ namespace ConsoleApp4
 }";
 
 		/// <summary>
+		/// The property with getter setter test code.
+		/// </summary>
+		private const string PropertyOverrideTestCode = @"
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace ConsoleApp4
+{
+	public class PropertyTester
+	{
+		public override string PersonName { get; set; }
+	}
+}";
+
+		/// <summary>
+		/// The property with getter setter test fix code.
+		/// </summary>
+		private const string PropertyOverrideTestFixCode = @"
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace ConsoleApp4
+{
+	public class PropertyTester
+	{
+        /// <inheritdoc/>
+        public override string PersonName { get; set; }
+	}
+}";
+
+		/// <summary>
 		/// The property only getter test code.
 		/// </summary>
 		private const string PropertyOnlyGetterTestCode = @"
@@ -295,6 +328,7 @@ namespace ConsoleApp4
 		/// <param name="column">The column.</param>
 		[DataTestMethod]
 		[DataRow(PropertyWithGetterSetterTestCode, PropertyWithGetterSetterTestFixCode, 10, 17)]
+		[DataRow(PropertyOverrideTestCode, PropertyOverrideTestFixCode, 10, 26)]
 		[DataRow(PropertyOnlyGetterTestCode, PropertyOnlyGetterTestFixCode, 10, 17)]
 		[DataRow(PropertyPrivateGetterTestCode, PropertyPrivateGetterTestFixCode, 10, 23)]
 		[DataRow(PropertyInternalGetterTestCode, PropertyInternalGetterTestFixCode, 10, 23)]
