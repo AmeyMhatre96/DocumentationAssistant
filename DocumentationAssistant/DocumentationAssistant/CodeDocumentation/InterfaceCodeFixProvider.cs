@@ -15,18 +15,18 @@ namespace DocumentationAssistant
 	/// <summary>
 	/// The interface code fix provider.
 	/// </summary>
-	[ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(EnumCodeFixProvider)), Shared]
-	public class EnumCodeFixProvider : CodeFixProvider
+	[ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(InterfaceCodeFixProvider)), Shared]
+	public class InterfaceCodeFixProvider : CodeFixProvider
 	{
 		/// <summary>
 		/// The title.
 		/// </summary>
-		private const string Title = "Add documentation header to this enum";
+		private const string Title = "Add documentation header to this interface";
 
 		/// <summary>
 		/// Gets the fixable diagnostic ids.
 		/// </summary>
-		public sealed override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray.Create(EnumAnalyzer.DiagnosticId);
+		public sealed override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray.Create(InterfaceAnalyzer.DiagnosticId);
 
 		/// <summary>
 		/// Gets fix all provider.
@@ -49,7 +49,7 @@ namespace DocumentationAssistant
 			Diagnostic diagnostic = context.Diagnostics.First();
 			Microsoft.CodeAnalysis.Text.TextSpan diagnosticSpan = diagnostic.Location.SourceSpan;
 
-			EnumDeclarationSyntax declaration = root.FindToken(diagnosticSpan.Start).Parent.AncestorsAndSelf().OfType<EnumDeclarationSyntax>().First();
+			InterfaceDeclarationSyntax declaration = root.FindToken(diagnosticSpan.Start).Parent.AncestorsAndSelf().OfType<InterfaceDeclarationSyntax>().First();
 
 			context.RegisterCodeFix(
 				CodeAction.Create(
@@ -67,15 +67,15 @@ namespace DocumentationAssistant
 		/// <param name="declarationSyntax">The declaration syntax.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <returns>A Document.</returns>
-		private async Task<Document> AddDocumentationHeaderAsync(Document document, SyntaxNode root, EnumDeclarationSyntax declarationSyntax, CancellationToken cancellationToken)
+		private async Task<Document> AddDocumentationHeaderAsync(Document document, SyntaxNode root, InterfaceDeclarationSyntax declarationSyntax, CancellationToken cancellationToken)
 		{
 			SyntaxTriviaList leadingTrivia = declarationSyntax.GetLeadingTrivia();
 
-			string comment = CommentHelper.CreateEnumComment(declarationSyntax.Identifier.ValueText);
+			string comment = CommentHelper.CreateInterfaceComment(declarationSyntax.Identifier.ValueText);
 			DocumentationCommentTriviaSyntax commentTrivia = await Task.Run(() => DocumentationHeaderHelper.CreateOnlySummaryDocumentationCommentTrivia(comment), cancellationToken);
 
 			SyntaxTriviaList newLeadingTrivia = leadingTrivia.Insert(leadingTrivia.Count - 1, SyntaxFactory.Trivia(commentTrivia));
-			EnumDeclarationSyntax newDeclaration = declarationSyntax.WithLeadingTrivia(newLeadingTrivia);
+			InterfaceDeclarationSyntax newDeclaration = declarationSyntax.WithLeadingTrivia(newLeadingTrivia);
 
 			SyntaxNode newRoot = root.ReplaceNode(declarationSyntax, newDeclaration);
 			return document.WithSyntaxRoot(newRoot);

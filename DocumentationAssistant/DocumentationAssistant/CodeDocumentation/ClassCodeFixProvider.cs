@@ -13,20 +13,20 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace DocumentationAssistant
 {
 	/// <summary>
-	/// The interface code fix provider.
+	/// The class code fix provider.
 	/// </summary>
-	[ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(InterfaceCodeFixProvider)), Shared]
-	public class InterfaceCodeFixProvider : CodeFixProvider
+	[ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(ClassCodeFixProvider)), Shared]
+	public class ClassCodeFixProvider : CodeFixProvider
 	{
 		/// <summary>
 		/// The title.
 		/// </summary>
-		private const string Title = "Add documentation header to this interface";
+		private const string Title = "Add documentation header to this class";
 
 		/// <summary>
 		/// Gets the fixable diagnostic ids.
 		/// </summary>
-		public sealed override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray.Create(InterfaceAnalyzer.DiagnosticId);
+		public sealed override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray.Create(ClassAnalyzer.DiagnosticId);
 
 		/// <summary>
 		/// Gets fix all provider.
@@ -49,7 +49,7 @@ namespace DocumentationAssistant
 			Diagnostic diagnostic = context.Diagnostics.First();
 			Microsoft.CodeAnalysis.Text.TextSpan diagnosticSpan = diagnostic.Location.SourceSpan;
 
-			InterfaceDeclarationSyntax declaration = root.FindToken(diagnosticSpan.Start).Parent.AncestorsAndSelf().OfType<InterfaceDeclarationSyntax>().First();
+			ClassDeclarationSyntax declaration = root.FindToken(diagnosticSpan.Start).Parent.AncestorsAndSelf().OfType<ClassDeclarationSyntax>().First();
 
 			context.RegisterCodeFix(
 				CodeAction.Create(
@@ -67,15 +67,15 @@ namespace DocumentationAssistant
 		/// <param name="declarationSyntax">The declaration syntax.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <returns>A Document.</returns>
-		private async Task<Document> AddDocumentationHeaderAsync(Document document, SyntaxNode root, InterfaceDeclarationSyntax declarationSyntax, CancellationToken cancellationToken)
+		private async Task<Document> AddDocumentationHeaderAsync(Document document, SyntaxNode root, ClassDeclarationSyntax declarationSyntax, CancellationToken cancellationToken)
 		{
 			SyntaxTriviaList leadingTrivia = declarationSyntax.GetLeadingTrivia();
 
-			string comment = CommentHelper.CreateInterfaceComment(declarationSyntax.Identifier.ValueText);
+			string comment = CommentHelper.CreateClassComment(declarationSyntax.Identifier.ValueText);
 			DocumentationCommentTriviaSyntax commentTrivia = await Task.Run(() => DocumentationHeaderHelper.CreateOnlySummaryDocumentationCommentTrivia(comment), cancellationToken);
 
 			SyntaxTriviaList newLeadingTrivia = leadingTrivia.Insert(leadingTrivia.Count - 1, SyntaxFactory.Trivia(commentTrivia));
-			InterfaceDeclarationSyntax newDeclaration = declarationSyntax.WithLeadingTrivia(newLeadingTrivia);
+			ClassDeclarationSyntax newDeclaration = declarationSyntax.WithLeadingTrivia(newLeadingTrivia);
 
 			SyntaxNode newRoot = root.ReplaceNode(declarationSyntax, newDeclaration);
 			return document.WithSyntaxRoot(newRoot);
