@@ -59,6 +59,11 @@ namespace DocumentationAssistant
 		/// <param name="context">The context.</param>
 		private static void AnalyzeNode(SyntaxNodeAnalysisContext context)
 		{
+			if (Configuration.ExcludeSuggestionsForTestProjects && TestsProjectChecker.IsTestProject(context.SemanticModel))
+			{
+				return;
+			}
+
 			InterfaceDeclarationSyntax node = context.Node as InterfaceDeclarationSyntax;
 
 			DocumentationCommentTriviaSyntax commentTriviaSyntax = node

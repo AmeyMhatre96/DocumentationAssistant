@@ -56,6 +56,11 @@ namespace DocumentationAssistant
 		/// <param name="context">The context.</param>
 		private static void AnalyzeNode(SyntaxNodeAnalysisContext context)
 		{
+			if (Configuration.ExcludeSuggestionsForTestProjects && TestsProjectChecker.IsTestProject(context.SemanticModel))
+			{
+				return;
+			}
+
 			var node = context.Node as ClassDeclarationSyntax;
 
 			if (Configuration.IsEnabledForPublicMembersOnly && PrivateMemberChecker.IsPrivateMember(node))
