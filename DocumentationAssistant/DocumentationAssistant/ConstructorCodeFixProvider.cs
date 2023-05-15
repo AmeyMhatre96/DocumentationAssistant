@@ -16,7 +16,7 @@ namespace DocumentationAssistant
 	/// The constructor code fix provider.
 	/// </summary>
 	[ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(ConstructorCodeFixProvider)), Shared]
-	public class ConstructorCodeFixProvider : CodeFixProvider
+	public class ConstructorCodeFixProvider : DocumentationFixProvider<ConstructorDeclarationSyntax>
 	{
 		/// <summary>
 		/// The title.
@@ -69,14 +69,20 @@ namespace DocumentationAssistant
 		/// <returns>A Document.</returns>
 		private async Task<Document> AddDocumentationHeaderAsync(Document document, SyntaxNode root, ConstructorDeclarationSyntax declarationSyntax, CancellationToken cancellationToken)
 		{
+			SyntaxNode newDeclaration = await AddDocumentationHeaderAsync(declarationSyntax, cancellationToken);
+			SyntaxNode newRoot = root.ReplaceNode(declarationSyntax, newDeclaration);
+			return document.WithSyntaxRoot(newRoot);
+		}
+
+		/// <inheritdoc/>
+		public override async Task<SyntaxNode> AddDocumentationHeaderAsync(ConstructorDeclarationSyntax declarationSyntax, CancellationToken cancellationToken)
+		{
 			SyntaxTriviaList leadingTrivia = declarationSyntax.GetLeadingTrivia();
 			DocumentationCommentTriviaSyntax commentTrivia = await Task.Run(() => CreateDocumentationCommentTriviaSyntax(declarationSyntax), cancellationToken);
 
 			SyntaxTriviaList newLeadingTrivia = leadingTrivia.Insert(leadingTrivia.Count - 1, SyntaxFactory.Trivia(commentTrivia));
 			ConstructorDeclarationSyntax newDeclaration = declarationSyntax.WithLeadingTrivia(newLeadingTrivia);
-
-			SyntaxNode newRoot = root.ReplaceNode(declarationSyntax, newDeclaration);
-			return document.WithSyntaxRoot(newRoot);
+			return newDeclaration;
 		}
 
 		/// <summary>

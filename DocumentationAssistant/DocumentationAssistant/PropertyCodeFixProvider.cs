@@ -17,7 +17,7 @@ namespace DocumentationAssistant
 	/// The property code fix provider.
 	/// </summary>
 	[ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(PropertyCodeFixProvider)), Shared]
-	public class PropertyCodeFixProvider : CodeFixProvider
+	public class PropertyCodeFixProvider : DocumentationFixProvider<PropertyDeclarationSyntax>
 	{
 		/// <summary>
 		/// The title.
@@ -70,6 +70,14 @@ namespace DocumentationAssistant
 		/// <returns>A Document.</returns>
 		private async Task<Document> AddDocumentationHeaderAsync(Document document, SyntaxNode root, PropertyDeclarationSyntax declarationSyntax, CancellationToken cancellationToken)
 		{
+			SyntaxNode newDeclaration = await AddDocumentationHeaderAsync(declarationSyntax, cancellationToken);
+			SyntaxNode newRoot = root.ReplaceNode(declarationSyntax, newDeclaration);
+			return document.WithSyntaxRoot(newRoot);
+		}
+
+		/// <inheritdoc/>
+		public override async Task<SyntaxNode> AddDocumentationHeaderAsync(PropertyDeclarationSyntax declarationSyntax, CancellationToken cancellationToken)
+		{
 			SyntaxTriviaList leadingTrivia = declarationSyntax.GetLeadingTrivia();
 			// TODO : If it is a property implementation of an interface, use an inheritdoc
 
@@ -82,7 +90,7 @@ namespace DocumentationAssistant
 				var newCommentTrivia = SyntaxFactory.DocumentationCommentTrivia(SyntaxKind.SingleLineDocumentationCommentTrivia, list);
 				SyntaxTriviaList newTrivia = leadingTrivia.Insert(leadingTrivia.Count - 1, SyntaxFactory.Trivia(newCommentTrivia));
 				PropertyDeclarationSyntax newDeclarationSyntax = declarationSyntax.WithLeadingTrivia(newTrivia);
-				return document.WithSyntaxRoot(root.ReplaceNode(declarationSyntax, newDeclarationSyntax));
+				return newDeclarationSyntax;
 			}
 
 			bool isBoolean = false;
@@ -116,9 +124,7 @@ namespace DocumentationAssistant
 
 			SyntaxTriviaList newLeadingTrivia = leadingTrivia.Insert(leadingTrivia.Count - 1, SyntaxFactory.Trivia(commentTrivia));
 			PropertyDeclarationSyntax newDeclaration = declarationSyntax.WithLeadingTrivia(newLeadingTrivia);
-
-			SyntaxNode newRoot = root.ReplaceNode(declarationSyntax, newDeclaration);
-			return document.WithSyntaxRoot(newRoot);
+			return newDeclaration;
 		}
 	}
 }

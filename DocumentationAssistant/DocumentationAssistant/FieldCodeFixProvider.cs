@@ -16,7 +16,7 @@ namespace DocumentationAssistant
 	/// The field code fix provider.
 	/// </summary>
 	[ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(FieldCodeFixProvider)), Shared]
-	public class FieldCodeFixProvider : CodeFixProvider
+	public class FieldCodeFixProvider : DocumentationFixProvider<FieldDeclarationSyntax>
 	{
 		/// <summary>
 		/// The title.
@@ -69,6 +69,14 @@ namespace DocumentationAssistant
 		/// <returns>A Document.</returns>
 		private async Task<Document> AddDocumentationHeaderAsync(Document document, SyntaxNode root, FieldDeclarationSyntax declarationSyntax, CancellationToken cancellationToken)
 		{
+			SyntaxNode newDeclaration = await AddDocumentationHeaderAsync(declarationSyntax, cancellationToken);
+			SyntaxNode newRoot = root.ReplaceNode(declarationSyntax, newDeclaration);
+			return document.WithSyntaxRoot(newRoot);
+		}
+
+		/// <inheritdoc/>
+		public override async Task<SyntaxNode> AddDocumentationHeaderAsync(FieldDeclarationSyntax declarationSyntax, CancellationToken cancellationToken)
+		{
 			SyntaxTriviaList leadingTrivia = declarationSyntax.GetLeadingTrivia();
 
 			VariableDeclaratorSyntax field = declarationSyntax.DescendantNodes().OfType<VariableDeclaratorSyntax>().First();
@@ -77,9 +85,7 @@ namespace DocumentationAssistant
 
 			SyntaxTriviaList newLeadingTrivia = leadingTrivia.Insert(leadingTrivia.Count - 1, SyntaxFactory.Trivia(commentTrivia));
 			FieldDeclarationSyntax newDeclaration = declarationSyntax.WithLeadingTrivia(newLeadingTrivia);
-
-			SyntaxNode newRoot = root.ReplaceNode(declarationSyntax, newDeclaration);
-			return document.WithSyntaxRoot(newRoot);
+			return newDeclaration;
 		}
 	}
 }

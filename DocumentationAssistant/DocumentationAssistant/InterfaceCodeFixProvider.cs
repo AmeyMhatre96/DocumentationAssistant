@@ -16,7 +16,7 @@ namespace DocumentationAssistant
 	/// The interface code fix provider.
 	/// </summary>
 	[ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(InterfaceCodeFixProvider)), Shared]
-	public class InterfaceCodeFixProvider : CodeFixProvider
+	public class InterfaceCodeFixProvider : DocumentationFixProvider<InterfaceDeclarationSyntax>
 	{
 		/// <summary>
 		/// The title.
@@ -69,6 +69,14 @@ namespace DocumentationAssistant
 		/// <returns>A Document.</returns>
 		private async Task<Document> AddDocumentationHeaderAsync(Document document, SyntaxNode root, InterfaceDeclarationSyntax declarationSyntax, CancellationToken cancellationToken)
 		{
+			SyntaxNode newDeclaration = await AddDocumentationHeaderAsync(declarationSyntax, cancellationToken);
+			SyntaxNode newRoot = root.ReplaceNode(declarationSyntax, newDeclaration);
+			return document.WithSyntaxRoot(newRoot);
+		}
+
+		/// <inheritdoc/>
+		public override async Task<SyntaxNode> AddDocumentationHeaderAsync(InterfaceDeclarationSyntax declarationSyntax, CancellationToken cancellationToken)
+		{
 			SyntaxTriviaList leadingTrivia = declarationSyntax.GetLeadingTrivia();
 
 			string comment = CommentHelper.CreateInterfaceComment(declarationSyntax.Identifier.ValueText);
@@ -76,9 +84,7 @@ namespace DocumentationAssistant
 
 			SyntaxTriviaList newLeadingTrivia = leadingTrivia.Insert(leadingTrivia.Count - 1, SyntaxFactory.Trivia(commentTrivia));
 			InterfaceDeclarationSyntax newDeclaration = declarationSyntax.WithLeadingTrivia(newLeadingTrivia);
-
-			SyntaxNode newRoot = root.ReplaceNode(declarationSyntax, newDeclaration);
-			return document.WithSyntaxRoot(newRoot);
+			return newDeclaration;
 		}
 	}
 }

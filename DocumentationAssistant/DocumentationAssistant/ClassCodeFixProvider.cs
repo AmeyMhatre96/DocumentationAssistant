@@ -16,7 +16,7 @@ namespace DocumentationAssistant
 	/// The class code fix provider.
 	/// </summary>
 	[ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(ClassCodeFixProvider)), Shared]
-	public class ClassCodeFixProvider : CodeFixProvider
+	public class ClassCodeFixProvider : DocumentationFixProvider<ClassDeclarationSyntax>
 	{
 		/// <summary>
 		/// The title.
@@ -69,16 +69,23 @@ namespace DocumentationAssistant
 		/// <returns>A Document.</returns>
 		private async Task<Document> AddDocumentationHeaderAsync(Document document, SyntaxNode root, ClassDeclarationSyntax declarationSyntax, CancellationToken cancellationToken)
 		{
+			SyntaxNode newDeclaration = await AddDocumentationHeaderAsync(declarationSyntax, cancellationToken);
+			SyntaxNode newRoot = root.ReplaceNode(declarationSyntax, newDeclaration);
+			return document.WithSyntaxRoot(newRoot);
+		}
+
+		/// <inheritdoc/>
+		public override async Task<SyntaxNode> AddDocumentationHeaderAsync(ClassDeclarationSyntax declarationSyntax, CancellationToken cancellationToken)
+		{
 			SyntaxTriviaList leadingTrivia = declarationSyntax.GetLeadingTrivia();
 
 			string comment = CommentHelper.CreateClassComment(declarationSyntax.Identifier.ValueText);
 			DocumentationCommentTriviaSyntax commentTrivia = await Task.Run(() => DocumentationHeaderHelper.CreateOnlySummaryDocumentationCommentTrivia(comment), cancellationToken);
 
-			SyntaxTriviaList newLeadingTrivia = leadingTrivia.Insert(leadingTrivia.Count - 1, SyntaxFactory.Trivia(commentTrivia));
+			int insertPosition = leadingTrivia.Count == 0 ? 0 : leadingTrivia.Count -1;
+			SyntaxTriviaList newLeadingTrivia = leadingTrivia.Insert(insertPosition, SyntaxFactory.Trivia(commentTrivia));
 			ClassDeclarationSyntax newDeclaration = declarationSyntax.WithLeadingTrivia(newLeadingTrivia);
-
-			SyntaxNode newRoot = root.ReplaceNode(declarationSyntax, newDeclaration);
-			return document.WithSyntaxRoot(newRoot);
+			return newDeclaration;
 		}
 	}
 }

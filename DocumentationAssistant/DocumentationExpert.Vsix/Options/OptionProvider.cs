@@ -1,5 +1,4 @@
 ﻿using System.Runtime.InteropServices;
-using System.Windows.Forms;
 
 namespace DocumentationExpert.Vsix.Options
 {
@@ -10,22 +9,6 @@ namespace DocumentationExpert.Vsix.Options
 		[ComVisible(true)]
 		public class GeneralOptions : BaseOptionPage<General>
 		{
-		}
-
-		[ComVisible(true)]
-		[Guid("4DDC4CD8-60F9-4170-8E98-AB639AC5ED9F")]
-		public class HeaderOptionsPage : DialogPage
-		{
-			public string FileHeaderText { get; set; }
-
-			protected override System.Windows.Forms.IWin32Window Window
-			{
-				get
-				{
-					HeaderOptionsControl page = new HeaderOptionsControl(this);
-					return page;
-				}
-			}
 		}
 	}
 }

@@ -22,6 +22,6 @@ namespace DocumentationExpert.Vsix
     {
         public const int FileHeaderGroup = 0x0001;
         public const int SetFileHeader = 0x0100;
-        public const int ReplaceFileHeader = 0x0101;
+        public const int ApplyDocumentationFix = 0x0110;
     }
 }

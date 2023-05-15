@@ -25,13 +25,13 @@
 					<LocCanonicalName>.DocumentationExpert.Vsix.SetFileHeader</LocCanonicalName>
 				</Strings>
 			</Button>
-			<Button guid="DocumentationExpertVsix" id="ReplaceFileHeader" priority="0x0101" type="Button">
+		    <Button guid="DocumentationExpertVsix" id="ApplyDocumentationFix" priority="0x0110" type="Button">
 				<Parent guid="DocumentationExpertVsix" id="FileHeaderGroup" />
 				<Icon guid="ImageCatalogGuid" id="PageHeader" />
 				<CommandFlag>IconIsMoniker</CommandFlag>
 				<Strings>
-					<ButtonText>Replace File Header</ButtonText>
-					<LocCanonicalName>.DocumentationExpert.Vsix.ReplaceFileHeader</LocCanonicalName>
+					<ButtonText>Add Missing Documentation</ButtonText>
+					<LocCanonicalName>.DocumentationExpert.Vsix.ApplyDocumentationFix</LocCanonicalName>
 				</Strings>
 			</Button>
 		</Buttons>
@@ -41,7 +41,7 @@
 		<GuidSymbol name="DocumentationExpertVsix" value="{fde40217-8d50-4253-89ad-c990f956e4bd}">
 			<IDSymbol name="FileHeaderGroup" value="0x0001" />
 			<IDSymbol name="SetFileHeader" value="0x0100" />
-			<IDSymbol name="ReplaceFileHeader" value="0x0101" />
+			<IDSymbol name="ApplyDocumentationFix" value="0x0110" />
 		</GuidSymbol>
 	</Symbols>
 </CommandTable>

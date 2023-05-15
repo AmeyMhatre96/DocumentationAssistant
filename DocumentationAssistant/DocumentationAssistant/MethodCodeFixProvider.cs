@@ -16,7 +16,7 @@ namespace DocumentationAssistant
 	/// The method code fix provider.
 	/// </summary>
 	[ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(MethodCodeFixProvider)), Shared]
-	public class MethodCodeFixProvider : CodeFixProvider
+	public class MethodCodeFixProvider : DocumentationFixProvider<MethodDeclarationSyntax>
 	{
 		/// <summary>
 		/// The title.
@@ -54,7 +54,7 @@ namespace DocumentationAssistant
 			context.RegisterCodeFix(
 				CodeAction.Create(
 					title: Title,
-					createChangedDocument: c => this.AddDocumentationHeaderAsync(context.Document, root, declaration, c),
+					createChangedDocument: c => AddDocumentationHeaderAsync(context.Document, root, declaration, c),
 					equivalenceKey: Title),
 				diagnostic);
 		}
@@ -69,14 +69,26 @@ namespace DocumentationAssistant
 		/// <returns>A Task.</returns>
 		private async Task<Document> AddDocumentationHeaderAsync(Document document, SyntaxNode root, MethodDeclarationSyntax declarationSyntax, CancellationToken cancellationToken)
 		{
+			SyntaxNode newDeclaration = await AddDocumentationHeaderAsync(declarationSyntax, cancellationToken);
+			SyntaxNode newRoot = root.ReplaceNode(declarationSyntax, newDeclaration);
+			return document.WithSyntaxRoot(newRoot);
+		}
+
+		/// <summary>
+		/// Adds the documentation header async.
+		/// </summary>
+		/// <param name="root">The root.</param>
+		/// <param name="declarationSyntax">The declaration syntax.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <returns>A Task.</returns>
+		public override async Task<SyntaxNode> AddDocumentationHeaderAsync(MethodDeclarationSyntax declarationSyntax, CancellationToken cancellationToken)
+		{
 			SyntaxTriviaList leadingTrivia = declarationSyntax.GetLeadingTrivia();
 			DocumentationCommentTriviaSyntax commentTrivia = await Task.Run(() => CreateDocumentationCommentTriviaSyntax(declarationSyntax), cancellationToken);
 
 			SyntaxTriviaList newLeadingTrivia = leadingTrivia.Insert(leadingTrivia.Count - 1, SyntaxFactory.Trivia(commentTrivia));
 			MethodDeclarationSyntax newDeclaration = declarationSyntax.WithLeadingTrivia(newLeadingTrivia);
-
-			SyntaxNode newRoot = root.ReplaceNode(declarationSyntax, newDeclaration);
-			return document.WithSyntaxRoot(newRoot);
+			return newDeclaration;
 		}
 
 		/// <summary>
