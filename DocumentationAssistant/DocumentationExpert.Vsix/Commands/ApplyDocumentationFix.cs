@@ -37,9 +37,11 @@ namespace DocumentationExpert.Vsix
 			{
 				var updatedNode = node;
 				// Recursively traverse the child nodes,
-				foreach (var childNode in node.ChildNodes())
+				var listOfChildren = updatedNode.ChildNodes().ToList();
+				for (int i = 0; i < listOfChildren.Count; i++)
 				{
-					updatedNode = await TraverseAndCollect(childNode, updatedNode);
+					updatedNode = await TraverseAndCollect(listOfChildren[i], updatedNode);
+					listOfChildren = updatedNode.ChildNodes().ToList();
 				}
 
 				if (documentationFixProviders.TryGetValue(updatedNode.GetType().FullName, out var codeFixProvider))
@@ -55,7 +57,7 @@ namespace DocumentationExpert.Vsix
 						var newDeclaration = await codeFixProvider.AddDocumentationHeaderAsync(updatedNode, CancellationToken.None);
 						if (newDeclaration != null)
 						{
-							return parent.ReplaceNode(node, newDeclaration);
+							return parent.ReplaceNode(updatedNode, newDeclaration);
 						}
 						newNodesToReplace.Add(node, newDeclaration);
 					}
@@ -64,10 +66,12 @@ namespace DocumentationExpert.Vsix
 				return parent.ReplaceNode(node, updatedNode);
 			}
 
-			var updatedRootNode = rootNode;
-			foreach (var childNode in rootNode.ChildNodes())
+			SyntaxNode updatedRootNode = rootNode;
+			List<SyntaxNode> listOfChildren = updatedRootNode.ChildNodes().ToList();
+			for (int i = 0; i < listOfChildren.Count; i++)
 			{
-				updatedRootNode = await TraverseAndCollect(childNode, updatedRootNode);
+				updatedRootNode = await TraverseAndCollect(listOfChildren[i], updatedRootNode);
+				listOfChildren = updatedRootNode.ChildNodes().ToList();
 			}
 
 			using (var edit = documentView.Document.TextBuffer.CreateEdit())
