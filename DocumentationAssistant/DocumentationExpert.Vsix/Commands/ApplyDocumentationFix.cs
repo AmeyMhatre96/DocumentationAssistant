@@ -57,7 +57,7 @@ namespace DocumentationExpert.Vsix
 						var newDeclaration = await codeFixProvider.AddDocumentationHeaderAsync(updatedNode, CancellationToken.None);
 						if (newDeclaration != null)
 						{
-							return parent.ReplaceNode(updatedNode, newDeclaration);
+							return parent.ReplaceNode(node, newDeclaration);
 						}
 						newNodesToReplace.Add(node, newDeclaration);
 					}

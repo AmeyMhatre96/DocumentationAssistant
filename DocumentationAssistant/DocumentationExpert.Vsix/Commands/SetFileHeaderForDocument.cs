@@ -1,5 +1,4 @@
-﻿
-namespace DocumentationExpert.Vsix
+﻿namespace DocumentationExpert.Vsix
 {
 	[Command(PackageIds.SetFileHeader)]
 	internal sealed class SetFileHeaderForDocument : BaseCommand<SetFileHeaderForDocument>
@@ -13,7 +12,6 @@ namespace DocumentationExpert.Vsix
 			var headerToSet = general.FileHeaderText;
 			headerToSet = headerToSet.Replace("{fileName}", new System.IO.FileInfo(textView.FilePath).Name);
 			headerToSet = headerToSet.Replace("{date}", DateTime.Now.ToString("yyyy-MM-dd"));
-			headerToSet += Environment.NewLine;
 			headerToSet += Environment.NewLine;
 			var textSnapshot = textView.TextView.TextSnapshot;
 			var text = textSnapshot.GetText();
