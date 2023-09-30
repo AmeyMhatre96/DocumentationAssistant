@@ -71,6 +71,78 @@ namespace ConsoleApp4
 }";
 
 		/// <summary>
+		/// The unity test code.
+		/// </summary>
+		private const string UnityTestCode = @"
+using System;
+using UnityEngine;
+
+namespace ConsoleApp4
+{
+	public class MethodTester
+	{
+        public void Start()
+		{
+		}
+	}
+}";
+
+		/// <summary>
+		/// The unity test fix code.
+		/// </summary>
+		private const string UnityTestFixCode = @"
+using System;
+using UnityEngine;
+
+namespace ConsoleApp4
+{
+	public class MethodTester
+	{
+        /// <summary>
+        /// Starts.
+        /// </summary>
+        public void Start()
+		{
+		}
+	}
+}";
+
+		/// <summary>
+		/// The unity mono behaviour test code.
+		/// </summary>
+		private const string UnityMonoBehaviourTestCode = @"
+using System;
+using UnityEngine;
+
+namespace ConsoleApp4
+{
+	public class MethodTester: MonoBehaviour
+	{
+		public void Start()
+		{
+		}
+	}
+}";
+
+		/// <summary>
+		/// The unity mono behaviour test fix code.
+		/// </summary>
+		private const string UnityMonoBehaviourTestFixCode = @"
+using System;
+using UnityEngine;
+
+namespace ConsoleApp4
+{
+	public class MethodTester: MonoBehaviour
+	{
+        /// <inheritdoc/>
+        public void Start()
+		{
+		}
+	}
+}";
+
+		/// <summary>
 		/// The override test code.
 		/// </summary>
 		private const string OverrideTestCode = @"
@@ -106,8 +178,6 @@ namespace ConsoleApp4
 		}
 	}
 }";
-
-
 
 		/// <summary>
 		/// The method with parameter test code.
@@ -548,6 +618,8 @@ namespace ConsoleApp4
 		[DataTestMethod]
 		[DataRow(BasicTestCode, BasicTestFixCode, 10, 15)]
 		[DataRow(OverrideTestCode, OverrideTestFixCode, 10, 24)]
+		[DataRow(UnityTestCode, UnityTestFixCode, 9, 21)]
+		[DataRow(UnityMonoBehaviourTestCode, UnityMonoBehaviourTestFixCode, 9, 15)]
 		[DataRow(MethodWithParameterTestCode, MethodWithParameterTestFixCode, 10, 15)]
 		[DataRow(MethodWithBooleanParameterTestCode, MethodWithBooleanParameterTestFixCode, 10, 15)]
 		[DataRow(MethodWithNullableStructParameterTestCode, MethodWithNullableStructParameterTestFixCode, 10, 15)]

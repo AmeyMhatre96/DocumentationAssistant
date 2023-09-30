@@ -12,12 +12,16 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace DocumentationAssistant
 {
+
 	/// <summary>
 	/// The method code fix provider.
 	/// </summary>
 	[ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(MethodCodeFixProvider)), Shared]
 	public class MethodCodeFixProvider : DocumentationFixProvider<MethodDeclarationSyntax>
 	{
+		private static readonly string[] UnityMethods = new string[7] {
+		"Start", "Update", "FixedUpdate", "LateUpdate", "OnGUI", "OnDisable", "OnEnable"};
+
 		/// <summary>
 		/// The title.
 		/// </summary>
@@ -101,9 +105,13 @@ namespace DocumentationAssistant
 
 			SyntaxList<SyntaxNode> list = SyntaxFactory.List<SyntaxNode>();
 
-			// check if the method is an override
+			// check if the method is an override or has a standard Unity method name
 			bool isOverride = declarationSyntax.Modifiers.Any(SyntaxKind.OverrideKeyword);
-			if (isOverride)
+			bool isUnity = UnityMethods.Contains(declarationSyntax.Identifier.Text);
+			// Also check if the class we are analyzing is a MonoBehaviour
+			isUnity = isUnity && declarationSyntax.Ancestors().OfType<ClassDeclarationSyntax>().Any(x => x.BaseList?.Types.Any(y => y.Type.ToString() == "MonoBehaviour") ?? false);
+
+			if (isOverride || isUnity)
 			{
 				list = list.AddRange(DocumentationHeaderHelper.CreateInheritDocNode());
 				return SyntaxFactory.DocumentationCommentTrivia(SyntaxKind.SingleLineDocumentationCommentTrivia, list);
